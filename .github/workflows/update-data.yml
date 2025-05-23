@@ -1,0 +1,32 @@
+name: Actualizar GeoJSON 20x día
+
+on:
+  schedule:
+    - cron: '*/72 * * * *'  # Cada 72 minutos
+  workflow_dispatch:
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clonar repo
+        uses: actions/checkout@v3
+
+      - name: Instalar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Instalar requests
+        run: pip install requests
+
+      - name: Ejecutar script
+        run: python generar_geojson.py
+
+      - name: Subir cambios
+        run: |
+          git config user.name "Energy Quake Bot"
+          git config user.email "bot@energyquake.org"
+          git add sismos_iris.geojson
+          git commit -m "⚡ Actualización automática de sismos"
+          git push
