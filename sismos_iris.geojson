@@ -1,0 +1,34 @@
+import requests
+import json
+from datetime import datetime, timedelta
+
+# Configuración de fechas
+HOY = datetime.utcnow()
+HACE_30_DIAS = HOY - timedelta(days=30)
+
+# Parámetros IRIS
+params = {
+    'starttime': HACE_30_DIAS.strftime('%Y-%m-%d'),
+    'endtime': HOY.strftime('%Y-%m-%d'),
+    'minlatitude': -60,
+    'maxlatitude': 75,
+    'minlongitude': -180,
+    'maxlongitude': -30,
+    'minmagnitude': 2.0,
+    'format': 'geojson'
+}
+
+# Consultar IRIS
+url = 'https://service.iris.edu/fdsnws/event/1/query'
+response = requests.get(url, params=params)
+
+# Procesar respuesta
+if response.status_code == 200:
+    data = response.json()
+
+    # Guardar directamente como GeoJSON para ENERGY QUAKE
+    with open("sismos_iris.geojson", "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+    print("✅ Archivo 'sismos_iris.geojson' generado correctamente.")
+else:
+    print(f"❌ Error al consultar IRIS: {response.status_code}")
